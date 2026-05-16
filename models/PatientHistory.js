@@ -1,44 +1,69 @@
-const mongoose = require("mongoose");
+// backend/models/PatientHistory.js
 
-const patientHistorySchema =
-  new mongoose.Schema(
-    {
-      patientName: {
-        type: String,
-        required: true,
-      },
+const supabase = require("../config/supabase");
 
-      doctorName: {
-        type: String,
-        required: true,
-      },
+class PatientHistory {
+  // Create history record
+  static async create(historyData) {
+    const { data, error } = await supabase
+      .from("patient_history")
+      .insert([historyData])
+      .select()
+      .single();
 
-      disease: {
-        type: String,
-        required: true,
-      },
+    if (error) throw error;
 
-      medicines: {
-        type: String,
-        required: true,
-      },
+    return data;
+  }
 
-      notes: {
-        type: String,
-      },
+  // Get all history records
+  static async getAll() {
+    const { data, error } = await supabase
+      .from("patient_history")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-      appointmentDate: {
-        type: String,
-        required: true,
-      },
-    },
-    {
-      timestamps: true,
-    }
-  );
+    if (error) throw error;
 
-module.exports =
-  mongoose.model(
-    "PatientHistory",
-    patientHistorySchema
-  );
+    return data;
+  }
+
+  // Find history by ID
+  static async findById(id) {
+    const { data, error } = await supabase
+      .from("patient_history")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) return null;
+
+    return data;
+  }
+
+  // Get history by patient name
+  static async findByPatient(patientName) {
+    const { data, error } = await supabase
+      .from("patient_history")
+      .select("*")
+      .eq("patientName", patientName);
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  // Delete history
+  static async delete(id) {
+    const { data, error } = await supabase
+      .from("patient_history")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    return data;
+  }
+}
+
+module.exports = PatientHistory;

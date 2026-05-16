@@ -1,52 +1,97 @@
-const mongoose = require("mongoose");
+// backend/models/Appointment.js
 
-const appointmentSchema =
-  new mongoose.Schema(
+const supabase = require("../config/supabase");
 
-    {
-      patientName: {
-        type: String,
-        required: true,
-      },
+class Appointment {
+  // Create appointment
+  static async create(appointmentData) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .insert([appointmentData])
+      .select()
+      .single();
 
-      patientEmail: {
-        type: String,
-        required: true,
-      },
+    if (error) throw error;
 
-      doctorName: {
-        type: String,
-        required: true,
-      },
+    return data;
+  }
 
-      specialty: {
-        type: String,
-        required: true,
-      },
+  // Get all appointments
+  static async getAll() {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-      date: {
-        type: String,
-        required: true,
-      },
+    if (error) throw error;
 
-      time: {
-        type: String,
-        required: true,
-      },
+    return data;
+  }
 
-      status: {
-        type: String,
-        default: "Pending",
-      },
-    },
+  // Find appointment by ID
+  static async findById(id) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    {
-      timestamps: true,
-    }
-  );
+    if (error) return null;
 
-module.exports =
-  mongoose.model(
-    "Appointment",
-    appointmentSchema
-  );
+    return data;
+  }
+
+  // Get appointments by patient email
+  static async findByPatientEmail(email) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("patientEmail", email)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  // Get appointments by doctor name
+  static async findByDoctor(doctorName) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("doctorName", doctorName)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  // Update appointment status
+  static async updateStatus(id, status) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .update({ status })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  // Delete appointment
+  static async delete(id) {
+    const { data, error } = await supabase
+      .from("appointments")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    return data;
+  }
+}
+
+module.exports = Appointment;
