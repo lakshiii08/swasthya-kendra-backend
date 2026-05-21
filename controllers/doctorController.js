@@ -7,7 +7,7 @@ const getDoctors = async (req, res) => {
 
   try {
 
-    const doctors = await Doctor.find();
+    const doctors = await Doctor.getAll();
 
     res.status(200).json(doctors);
 
